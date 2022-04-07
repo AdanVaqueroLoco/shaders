@@ -1,3 +1,4 @@
+from ctypes import c_void_p
 import OpenGL.GL as gl
 import glfw
 import numpy as np
@@ -55,7 +56,7 @@ def main():
 
     success = gl.glGetShaderiv(fragment_shader, gl.GL_COMPILE_STATUS)
     if not success:
-        info_log ) gl.glGetShaderInfoLog(fragment_shader, 512, None)
+        info_log = gl.glGetShaderInfoLog(fragment_shader, 512, None)
         raise Exception(info_log)
 
     #Adjuntar shaders programa de shader
@@ -73,5 +74,59 @@ def main():
     gl.glDeleteShader(vertex_shader)
     gl.glDeleteShader(fragment_shader)
 
+    vertices = np.array(
+        [
+            -0.5, -0.5, 0.0, #izquierda, abajo
+            0.0, 0.5, 0.0, #arriba
+            0.5, -0.5, 0.0 #derecha
+        ], dtype="float32"
+    )
+
+    #Generar vertex array object y vertex buffer object
+    VAO = gl.glGenVertexArrays(1)
+    VBO = gl.glGenBuffers(1)
+
+    #Le decimos a OpenGL con cual VAO quiere trabajar
+    gl.glBindVertexArray
+    #Le decimos a OpenGL con cual Buffer trabajar
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, VBO)
+    #Establecerle la información al buffer
+    gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices.nbytes, vertices, gl.GL_STATIC_DRAW)
+    #Definir como leer el VAO y activarlo
+    gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0))
+    gl.glEnableVertexAttribArray(0)
+
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0)
+    gl.glBindVertexArray(0)
+
+    #draw loop
+    while not glfw.window_should_close(window):
+        gl.glClearColor(0.3, 0.3, 0.3, 1.0)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+
+        #dibujar
+        #establecer que programa de shader se usa
+        gl.glUseProgram(shader_program)
+        #Establecer que VAO se va a usar
+        gl.glBindVertexArray(VAO)
+        #Mandar a dibujar el VAO
+        gl.glDrawArrays(gl.GL_TRIANGLES, 0, 3)
+
+        gl.glBindVertexArray(0)
+        gl.glUseProgram(0)
+
+        glfw.swap_buffers()
+        glfw.poll_events()
+
+    gl.glDeleteVertexArrays(1, VAO)
+    gl.glDeleteBuffers(1, VBO)
+    gl.glDeleteProgram(shader_program)
+
+    glfw.terminate()
+    return 0
+
 def framebuffer_size_callback(window, width, height):
     gl.glViewport(0,0,width,height)
+
+if __name__ == '__main__':
+    main()
