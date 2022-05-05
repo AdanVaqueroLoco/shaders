@@ -3,8 +3,9 @@ import numpy as np
 from ctypes import c_void_p
 
 class Modelo:
-    def __init__(self, shader, posicion_id, color_id):
+    def __init__(self, shader, posicion_id, color_id, transformaciones_id):
         self.shader = shader
+        self.transformaciones_id = transformaciones_id
 
 
         #Generar vertex array object y vertex buffer object
@@ -35,6 +36,9 @@ class Modelo:
     def dibujar(self):
         self.shader.usar_programa()
         gl.glBindVertexArray(self.VAO)
+
+        gl.glUniformMatrix4fv(self.transformaciones_id,
+                1, gl.GL_FALSE, glm.value_ptr(self.transformaciones))
 
         gl.glDrawArrays(gl.GL_TRIANGLES,0,3)
 
